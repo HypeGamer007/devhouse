@@ -98,9 +98,9 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
     mode: 'onChange',
     defaultValues: {
       name: userData ? userData.name : data?.user?.name,
-      email: userData ? userData.email : data?.user?.email,
-      avatarUrl: userData ? userData.avatarUrl : data?.user?.avatarUrl,
-      role: userData ? userData.role : data?.user?.role,
+      email: userData?.email ?? data?.user?.email,
+      avatarUrl: userData?.avatarUrl ?? data?.user?.avatarUrl,
+      role: userData?.role ?? data?.user?.role === 'TOURNAMENT_ORGANIZER' ? undefined : data?.user?.role,
     },
   })
 
@@ -115,11 +115,18 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
   }, [data, form])
 
   useEffect(() => {
+    const resetFormData = (sourceData: typeof data.user | typeof userData) => {
+      if (!sourceData) return;
+      const { name, avatarUrl, email } = sourceData;
+      let { role } = sourceData;
+      role = role === 'TOURNAMENT_ORGANIZER' ? undefined : role;
+      form.reset({ name, avatarUrl, email, role });
+    };
+
     if (data.user) {
-      form.reset(data.user)
-    }
-    if (userData) {
-      form.reset(userData)
+      resetFormData(data.user);
+    } else if (userData) {
+      resetFormData(userData);
     }
   }, [userData, data])
 
