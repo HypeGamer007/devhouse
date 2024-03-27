@@ -88,7 +88,7 @@ const page = async ({ params }: Props) => {
               : 'Get Started'
           }
           highlightDescription="Want to modify your plan? You can do this here. If you have
-          further question contact support@hypegamer.gg"
+          further question contact billing@hypegamer.gg"
           highlightTitle="Plan Options"
           description={
             agencySubscription?.Subscription?.active === true
