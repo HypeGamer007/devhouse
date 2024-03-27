@@ -4,7 +4,7 @@ import {
   UserWithPermissionsAndSubAccounts,
 } from '@/lib/types'
 import { useModal } from '@/providers/modal-provider'
-import { SubAccount, User } from '@prisma/client'
+import { Role, SubAccount, User } from '@prisma/client'
 import React, { useEffect, useState } from 'react'
 import { useToast } from '../ui/use-toast'
 import { useRouter } from 'next/navigation'
@@ -90,6 +90,8 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
       'AGENCY_ADMIN',
       'SUBACCOUNT_USER',
       'SUBACCOUNT_GUEST',
+      'TOURNAMENT_ORGANIZER',
+      'TOURNAMENT_ADMIN',
     ]),
   })
 
@@ -184,9 +186,12 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
   const onSubmit = async (values: z.infer<typeof userDataSchema>) => {
     if (!id) return
     if (userData || data?.user) {
-      const updatedUser = await updateUser(values)
+      const updatedUser = await updateUser({
+        ...values,
+        role: values.role as Role,
+      })
       authUserData?.Agency?.SubAccount.filter((subacc) =>
-        authUserData.Permissions.find(
+        authUserData.Permissions.some(
           (p) => p.subAccountId === subacc.id && p.access
         )
       ).forEach(async (subaccount) => {
