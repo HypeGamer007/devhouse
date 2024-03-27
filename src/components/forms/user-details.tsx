@@ -299,7 +299,7 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                 <FormItem className="flex-1">
                   <FormLabel> User Role</FormLabel>
                   <Select
-                    disabled={field.value === 'AGENCY_OWNER'}
+                    disabled={field.value === 'AGENCY_OWNER' || field.value === 'TOURNAMENT_ORGANIZER'}
                     onValueChange={(value) => {
                       if (
                         value === 'SUBACCOUNT_USER' ||
@@ -325,9 +325,19 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                         Agency Admin
                       </SelectItem>
                       {(data?.user?.role === 'AGENCY_OWNER' ||
-                        userData?.role === 'AGENCY_OWNER') && (
+                        userData?.role === 'AGENCY_OWNER' ||
+                        data?.user?.role === 'TOURNAMENT_ORGANIZER' ||
+                        userData?.role === 'TOURNAMENT_ORGANIZER') && (
                         <SelectItem value="AGENCY_OWNER">
                           Agency Owner
+                        </SelectItem>
+                      )}
+                      {(data?.user?.role === 'AGENCY_OWNER' ||
+                        userData?.role === 'AGENCY_OWNER' ||
+                        data?.user?.role === 'TOURNAMENT_ORGANIZER' ||
+                        userData?.role === 'TOURNAMENT_ORGANIZER') && (
+                        <SelectItem value="TOURNAMENT_ORGANIZER">
+                          Tournament Organizer
                         </SelectItem>
                       )}
                       <SelectItem value="SUBACCOUNT_USER">
@@ -349,14 +359,14 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
             >
               {form.formState.isSubmitting ? <Loading /> : 'Save User Details'}
             </Button>
-            {authUserData?.role === 'AGENCY_OWNER' && (
+            {authUserData?.role === 'AGENCY_OWNER' || authUserData?.role === 'TOURNAMENT_ORGANIZER' && (
               <div>
                 <Separator className="my-4" />
                 <FormLabel> User Permissions</FormLabel>
                 <FormDescription className="mb-4">
                   You can give Sub Account access to team member by turning on
                   access control for each Sub Account. This is only visible to
-                  agency owners
+                  agency owners and tournament organizers.
                 </FormDescription>
                 <div className="flex flex-col gap-4">
                   {subAccounts?.map((subAccount) => {
