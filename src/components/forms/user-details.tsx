@@ -416,4 +416,3 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
 }
 
 export default UserDetails
-
