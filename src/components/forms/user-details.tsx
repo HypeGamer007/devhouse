@@ -60,6 +60,7 @@ type Props = {
 const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
   const [subAccountPermissions, setSubAccountsPermissions] =
     useState<UserWithPermissionsAndSubAccounts | null>(null)
+  const [isSubAccountAssociated, setIsSubAccountAssociated] = useState(false)
 
   const { data, setClose } = useModal()
   const [roleState, setRoleState] = useState('')
@@ -131,6 +132,14 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
       resetFormData(userData);
     }
   }, [userData, data])
+
+  useEffect(() => {
+    if (subAccounts && subAccounts.length > 0) {
+      setIsSubAccountAssociated(true)
+    } else {
+      setIsSubAccountAssociated(false)
+    }
+  }, [subAccounts])
 
   const onChangePermission = async (
     subAccountId: string,
