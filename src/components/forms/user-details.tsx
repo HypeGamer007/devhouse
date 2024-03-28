@@ -4,7 +4,7 @@ import {
   UserWithPermissionsAndSubAccounts,
 } from '@/lib/types'
 import { useModal } from '@/providers/modal-provider'
-import { Role, SubAccount, User } from '@prisma/client'
+import { SubAccount, User } from '@prisma/client'
 import React, { useEffect, useState } from 'react'
 import { useToast } from '../ui/use-toast'
 import { useRouter } from 'next/navigation'
@@ -60,7 +60,6 @@ type Props = {
 const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
   const [subAccountPermissions, setSubAccountsPermissions] =
     useState<UserWithPermissionsAndSubAccounts | null>(null)
-  const [isSubAccountAssociated, setIsSubAccountAssociated] = useState(false)
 
   const { data, setClose } = useModal()
   const [roleState, setRoleState] = useState('')
@@ -91,8 +90,6 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
       'AGENCY_ADMIN',
       'SUBACCOUNT_USER',
       'SUBACCOUNT_GUEST',
-      'TOURNAMENT_ORGANIZER',
-      'TOURNAMENT_ADMIN',
     ]),
   })
 
@@ -101,9 +98,9 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
     mode: 'onChange',
     defaultValues: {
       name: userData ? userData.name : data?.user?.name,
-      email: userData?.email ?? data?.user?.email,
-      avatarUrl: userData?.avatarUrl ?? data?.user?.avatarUrl,
-      role: userData?.role ?? data?.user?.role === 'TOURNAMENT_ORGANIZER' ? undefined : data?.user?.role,
+      email: userData ? userData.email : data?.user?.email,
+      avatarUrl: userData ? userData.avatarUrl : data?.user?.avatarUrl,
+      role: userData ? userData.role : data?.user?.role,
     },
   })
 
@@ -118,28 +115,13 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
   }, [data, form])
 
   useEffect(() => {
-    const resetFormData = (sourceData: typeof data.user | typeof userData) => {
-      if (!sourceData) return;
-      const { name, avatarUrl, email } = sourceData;
-      let { role } = sourceData;
-      role = role === 'TOURNAMENT_ORGANIZER' ? undefined : role;
-      form.reset({ name, avatarUrl, email, role });
-    };
-
     if (data.user) {
-      resetFormData(data.user);
-    } else if (userData) {
-      resetFormData(userData);
+      form.reset(data.user)
+    }
+    if (userData) {
+      form.reset(userData)
     }
   }, [userData, data])
-
-  useEffect(() => {
-    if (subAccounts && subAccounts.length > 0) {
-      setIsSubAccountAssociated(true)
-    } else {
-      setIsSubAccountAssociated(false)
-    }
-  }, [subAccounts])
 
   const onChangePermission = async (
     subAccountId: string,
@@ -195,12 +177,9 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
   const onSubmit = async (values: z.infer<typeof userDataSchema>) => {
     if (!id) return
     if (userData || data?.user) {
-      const updatedUser = await updateUser({
-        ...values,
-        role: values.role as Role,
-      })
+      const updatedUser = await updateUser(values)
       authUserData?.Agency?.SubAccount.filter((subacc) =>
-        authUserData.Permissions.some(
+        authUserData.Permissions.find(
           (p) => p.subAccountId === subacc.id && p.access
         )
       ).forEach(async (subaccount) => {
@@ -308,7 +287,7 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                 <FormItem className="flex-1">
                   <FormLabel> User Role</FormLabel>
                   <Select
-                    disabled={field.value === 'AGENCY_OWNER' || field.value === 'TOURNAMENT_ORGANIZER'}
+                    disabled={field.value === 'AGENCY_OWNER'}
                     onValueChange={(value) => {
                       if (
                         value === 'SUBACCOUNT_USER' ||
@@ -330,23 +309,13 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="AGENCY_ADMIN">
+                      <SelectItem value="AGENCY_ADMING">
                         Agency Admin
                       </SelectItem>
                       {(data?.user?.role === 'AGENCY_OWNER' ||
-                        userData?.role === 'AGENCY_OWNER' ||
-                        data?.user?.role === 'TOURNAMENT_ORGANIZER' ||
-                        userData?.role === 'TOURNAMENT_ORGANIZER') && (
+                        userData?.role === 'AGENCY_OWNER') && (
                         <SelectItem value="AGENCY_OWNER">
                           Agency Owner
-                        </SelectItem>
-                      )}
-                      {(data?.user?.role === 'AGENCY_OWNER' ||
-                        userData?.role === 'AGENCY_OWNER' ||
-                        data?.user?.role === 'TOURNAMENT_ORGANIZER' ||
-                        userData?.role === 'TOURNAMENT_ORGANIZER') && (
-                        <SelectItem value="TOURNAMENT_ORGANIZER">
-                          Tournament Organizer
                         </SelectItem>
                       )}
                       <SelectItem value="SUBACCOUNT_USER">
@@ -368,14 +337,14 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
             >
               {form.formState.isSubmitting ? <Loading /> : 'Save User Details'}
             </Button>
-            {authUserData?.role === 'AGENCY_OWNER' || authUserData?.role === 'TOURNAMENT_ORGANIZER' && (
+            {authUserData?.role === 'AGENCY_OWNER' && (
               <div>
                 <Separator className="my-4" />
                 <FormLabel> User Permissions</FormLabel>
                 <FormDescription className="mb-4">
                   You can give Sub Account access to team member by turning on
                   access control for each Sub Account. This is only visible to
-                  agency owners and tournament organizers.
+                  agency owners
                 </FormDescription>
                 <div className="flex flex-col gap-4">
                   {subAccounts?.map((subAccount) => {

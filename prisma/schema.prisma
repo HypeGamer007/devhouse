@@ -13,8 +13,6 @@ enum Role {
   AGENCY_ADMIN
   SUBACCOUNT_USER
   SUBACCOUNT_GUEST
-  TOURNAMENT_ORGANIZER //same access as AGENCY_OWNER
-  TOURNAMENT_ADMIN    //same access as AGENCY_ADMIN
 }
 
 enum Icon {
