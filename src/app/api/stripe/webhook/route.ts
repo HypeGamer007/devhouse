@@ -7,9 +7,12 @@ import { subscriptionCreated } from '@/lib/stripe/stripe-actions'
 const stripeWebhookEvents = new Set([
   'product.created',
   'product.updated',
+  'product.deleted',
   'price.created',
   'price.updated',
+  'price.deleted',
   'checkout.session.completed',
+  'checkout.session.expired',
   'customer.subscription.created',
   'customer.subscription.updated',
   'customer.subscription.deleted',
