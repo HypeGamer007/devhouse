@@ -4,7 +4,7 @@ import {
   UserWithPermissionsAndSubAccounts,
 } from '@/lib/types'
 import { useModal } from '@/providers/modal-provider'
-import { SubAccount, User } from '@prisma/client'
+import { Role, SubAccount, User } from '@prisma/client'
 import React, { useEffect, useState } from 'react'
 import { useToast } from '../ui/use-toast'
 import { useRouter } from 'next/navigation'
@@ -90,6 +90,7 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
       'AGENCY_ADMIN',
       'SUBACCOUNT_USER',
       'SUBACCOUNT_GUEST',
+      'TOURNAMENT_ORGANIZER',
     ]),
   })
 
@@ -177,7 +178,10 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
   const onSubmit = async (values: z.infer<typeof userDataSchema>) => {
     if (!id) return
     if (userData || data?.user) {
-      const updatedUser = await updateUser(values)
+      const updatedUser = await updateUser({
+        ...values,
+        role: values.role as Role
+      })
       authUserData?.Agency?.SubAccount.filter((subacc) =>
         authUserData.Permissions.find(
           (p) => p.subAccountId === subacc.id && p.access
@@ -291,7 +295,8 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                     onValueChange={(value) => {
                       if (
                         value === 'SUBACCOUNT_USER' ||
-                        value === 'SUBACCOUNT_GUEST'
+                        value === 'SUBACCOUNT_GUEST' ||
+                        value === 'TOURNAMENT_ORGANIZER'
                       ) {
                         setRoleState(
                           'You need to have subaccounts to assign Subaccount access to team members.'
@@ -309,7 +314,7 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="AGENCY_ADMING">
+                      <SelectItem value="AGENCY_ADMIN">
                         Agency Admin
                       </SelectItem>
                       {(data?.user?.role === 'AGENCY_OWNER' ||
@@ -323,6 +328,9 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                       </SelectItem>
                       <SelectItem value="SUBACCOUNT_GUEST">
                         Sub Account Guest
+                      </SelectItem>
+                      <SelectItem value="TOURNAMENT_ORGANIZER">
+                        Tournament Organizer
                       </SelectItem>
                     </SelectContent>
                   </Select>

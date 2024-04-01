@@ -135,13 +135,13 @@ export const saveActivityLogsNotification = async ({
     })
   }
 }
-
 export const createTeamUser = async (agencyId: string, user: User) => {
-  if (user.role === 'AGENCY_OWNER') return null
-  const response = await db.user.create({ data: { ...user } })
-  return response
+  if (['AGENCY_OWNER', 'TOURNAMENT_ORGANIZER',].includes(user.role)) {
+    throw new Error('Invalid user role for creating team user');
+  }
+  const response = await db.user.create({ data: { ...user } });
+  return response;
 }
-
 export const verifyAndAcceptInvitation = async () => {
   const user = await currentUser()
   if (!user) return redirect('/sign-in')
