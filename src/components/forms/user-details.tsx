@@ -90,7 +90,7 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
       'AGENCY_ADMIN',
       'SUBACCOUNT_USER',
       'SUBACCOUNT_GUEST',
-      'TOURNAMENT_ORGANIZER',
+      'TOURNAMENT_ORGANIZER'
     ]),
   })
 
@@ -295,8 +295,8 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
                     onValueChange={(value) => {
                       if (
                         value === 'SUBACCOUNT_USER' ||
-                        value === 'SUBACCOUNT_GUEST' ||
-                        value === 'TOURNAMENT_ORGANIZER'
+                        value === 'SUBACCOUNT_GUEST'
+                        // value === 'TOURNAMENT_ORGANIZER'
                       ) {
                         setRoleState(
                           'You need to have subaccounts to assign Subaccount access to team members.'
