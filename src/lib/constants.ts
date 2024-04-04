@@ -58,7 +58,7 @@ export const pricingCards = [
 ]
 
 export const addOnProducts = [
-  { title: 'Priority Support', id: 'prod_PjrBwMlE4HyiUC' },
+  { title: 'Full Scaled White Label', id: 'prod_PjrBwMlE4HyiUC' },
 ]
 
 export const icons = [
