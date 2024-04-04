@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
 import { subscriptionCreated } from '@/lib/stripe/stripe-actions'
 
+// Define the events you care about for connected accounts
 const connectedAccountStripeWebhookEvents = new Set([
   'invoice.created',
   'invoice.paid',
@@ -19,17 +20,18 @@ const connectedAccountStripeWebhookEvents = new Set([
   'product.created',
   'product.deleted',
   'product.updated',
+  // Add more events as needed
 ])
 
 export async function POST(req: NextRequest) {
   let stripeEvent: Stripe.Event
   const body = await req.text()
   const sig = headers().get('Stripe-Signature')
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET_LIVE ?? process.env.STRIPE_WEBHOOK_SECRET
+  const webhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET
 
   try {
     if (!sig || !webhookSecret) {
-      console.log('🔴 Error: Stripe webhook secret or the signature does not exist.')
+      console.log('🔴 Error: Stripe connect webhook secret or the signature does not exist.')
       return new NextResponse('Webhook Error: Missing secret or signature', { status: 400 })
     }
     stripeEvent = stripe.webhooks.constructEvent(body, sig, webhookSecret)
@@ -40,44 +42,20 @@ export async function POST(req: NextRequest) {
 
   try {
     if (connectedAccountStripeWebhookEvents.has(stripeEvent.type)) {
+      // Handle the event for connected accounts
+      await handleConnectedAccountEvent(stripeEvent)
       console.log(`Handled connected account event: ${stripeEvent.type}`)
     } else {
-      const subscription = stripeEvent.data.object as Stripe.Subscription
-      if (
-        !subscription.metadata.connectAccountPayments &&
-        !subscription.metadata.connectAccountSubscriptions
-      ) {
-        switch (stripeEvent.type) {
-          case 'customer.subscription.created':
-          case 'customer.subscription.updated': {
-            if (subscription.status === 'active') {
-              await subscriptionCreated(
-                subscription,
-                subscription.customer as string
-              )
-              console.log('CREATED FROM WEBHOOK 💳', subscription)
-            } else {
-              console.log(
-                'SKIPPED AT CREATED FROM WEBHOOK 💳 because subscription status is not active',
-                subscription
-              )
-              break
-            }
-          }
-          default:
-            console.log('👉🏻 Unhandled relevant event!', stripeEvent.type)
-        }
-      } else {
-        console.log(
-          'SKIPPED FROM WEBHOOK 💳 because subscription was from a connected account not for the application',
-          subscription
-        )
-      }
+      console.log(`Unhandled event type: ${stripeEvent.type}`)
     }
   } catch (error) {
-    console.log(error)
-    return new NextResponse('🔴 Webhook Error', { status: 400 })
+    console.log(`🔴 Error handling event: ${error}`)
+    return new NextResponse('Webhook Error: Error handling event', { status: 400 })
   }
 
   return NextResponse.json({ webhookActionReceived: true }, { status: 200 })
+}
+
+function handleConnectedAccountEvent(stripeEvent: Stripe.Event) {
+  throw new Error('Function not implemented.')
 }
