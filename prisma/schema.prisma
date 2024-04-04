@@ -62,7 +62,6 @@ model User {
   Permissions  Permissions[]
   Ticket       Ticket[]
   Notification Notification[]
-
   @@index([agencyId])
 }
 
@@ -131,6 +130,7 @@ model SubAccount {
   Pipeline         Pipeline[]
   Tags             Tag[]
   Notification     Notification[]
+  Event            Event[]
 
   @@index([agencyId])
 }
@@ -431,4 +431,18 @@ model AddOns {
   Agency    Agency?  @relation(fields: [agencyId], references: [id])
 
   @@index([agencyId])
+}
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  subAccountId String
+  SubAccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  @@index([subAccountId])
 }
