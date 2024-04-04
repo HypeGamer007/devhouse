@@ -85,7 +85,7 @@ const LaunchPadPage = async ({ params, searchParams }: Props) => {
                   width={80}
                   className="rounded-md object-contain"
                 />
-                <p> Save the website as a shortcut on your mobile device</p>
+                <p> Full mobile control coming soon!</p>
               </div>
               <Button>Start</Button>
             </div>
@@ -99,8 +99,7 @@ const LaunchPadPage = async ({ params, searchParams }: Props) => {
                   className="rounded-md object-contain"
                 />
                 <p>
-                  Connect your stripe account to accept payments and see your
-                  dashboard.
+                  Connect your stripe account to accept payments, create subscriptions, products, and view all your revenue in one screen.
                 </p>
               </div>
               {agencyDetails.connectAccountId || connectedStripeAccount ? (
@@ -126,7 +125,7 @@ const LaunchPadPage = async ({ params, searchParams }: Props) => {
                   width={80}
                   className="rounded-md object-contain"
                 />
-                <p> Fill in all your bussiness details</p>
+                <p> Fill in all your bussiness details and branding.</p>
               </div>
               {allDetailsExist ? (
                 <CheckCircleIcon
