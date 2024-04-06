@@ -290,6 +290,15 @@ const MenuOptions = ({
                       </CommandItem>
                     )
                   })}
+                  {/* Add a new menu item for the Events page */}
+                  <CommandItem className="md:w-[320px] w-full">
+                    <Link
+                      href="/events"
+                      className="flex items-center gap-2 hover:bg-transparent rounded-md transition-all md:w-full w-[320px]"
+                    >
+                      <span>Events</span>
+                    </Link>
+                  </CommandItem>
                 </CommandGroup>
               </CommandList>
             </Command>
