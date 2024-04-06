@@ -455,6 +455,7 @@ model Event {
   
   @@index([agencyId])
   @@index([subAccountId])
+  @@index([ownerId])
 }
 
 model Team {
@@ -476,6 +477,7 @@ model TeamMember {
   Participant   Participant @relation(fields: [participantId], references: [id])
 
   @@unique([teamId, participantId])
+  @@index([participantId])
 }
 
 model Participant {
