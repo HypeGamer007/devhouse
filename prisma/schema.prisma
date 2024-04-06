@@ -132,12 +132,11 @@ model SubAccount {
   Pipeline         Pipeline[]
   Tags             Tag[]
   Notification     Notification[]
-  EventId          String?
-  Events  Event[]
+  EventIds         String?
+  Events           Event[]
   @@index([agencyId])
-  @@index([EventId])
+  @@index([EventIds])
 }
-
 model Tag {
   id           String   @id @default(uuid())
   name         String

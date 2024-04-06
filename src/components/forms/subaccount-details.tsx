@@ -45,12 +45,7 @@ const formSchema = z.object({
   country: z.string(),
 })
 
-//CHALLENGE Give access for Subaccount Guest they should see a different view maybe a form that allows them to create tickets
-
-//CHALLENGE layout.tsx oonly runs once as a result if you remove permissions for someone and they keep navigating the layout.tsx wont fire again. solution- save the data inside metadata for current user.
-
 interface SubAccountDetailsProps {
-  //To add the sub account to the agency
   agencyDetails: Agency
   details?: Partial<SubAccount>
   userId: string
@@ -99,6 +94,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
         agencyId: agencyDetails.id,
         connectAccountId: '',
         goal: 5000,
+        EventIds: null
       })
       if (!response) throw new Error('No response from server')
       await saveActivityLogsNotification({
@@ -125,12 +121,21 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
 
   useEffect(() => {
     if (details) {
-      form.reset(details)
+      form.reset({
+        name: details.name,
+        companyEmail: details.companyEmail,
+        companyPhone: details.companyPhone,
+        address: details.address,
+        city: details.city,
+        subAccountLogo: details.subAccountLogo,
+        zipCode: details.zipCode,
+        state: details.state,
+        country: details.country,
+      })
     }
   }, [details])
 
   const isLoading = form.formState.isSubmitting
-  //CHALLENGE Create this form.
   return (
     <Card className="w-full">
       <CardHeader>
@@ -186,7 +191,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 name="companyEmail"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Acount Email</FormLabel>
+                    <FormLabel>Account Email</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Email"
@@ -205,7 +210,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 name="companyPhone"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Acount Phone Number</FormLabel>
+                    <FormLabel>Account Phone Number</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Phone"
@@ -280,7 +285,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 name="zipCode"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Zipcpde</FormLabel>
+                    <FormLabel>Zipcode</FormLabel>
                     <FormControl>
                       <Input
                         required
