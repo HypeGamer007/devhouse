@@ -44,7 +44,8 @@ const PricingCard = ({
 }: Props) => {
   const { setOpen } = useModal()
   const searchParams = useSearchParams()
-  const plan = searchParams ? searchParams.get('plan') : null;
+  const plan = searchParams!.get('plan');
+
   const handleManagePlan = async () => {
     setOpen(
       <CustomModal
