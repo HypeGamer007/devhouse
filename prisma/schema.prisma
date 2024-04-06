@@ -62,15 +62,16 @@ model User {
   Permissions  Permissions[]
   Ticket       Ticket[]
   Notification Notification[]
+  ownedEvents  Event[]
   @@index([agencyId])
 }
 
 model Permissions {
-  id           String     @id @default(uuid())
+  id           String                   @id @default(uuid())
   email        String
-  User         User       @relation(fields: [email], references: [email], onDelete: Cascade)
+  User         User                     @relation(fields: [email], references: [email], onDelete: Cascade)
   subAccountId String
-  SubAccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount               @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
   access       Boolean
 
   @@index([subAccountId])
@@ -101,6 +102,7 @@ model Agency {
   Notification     Notification[]
   Subscription     Subscription?
   AddOns           AddOns[]
+  Events           Event[]
 }
 
 model SubAccount {
@@ -130,9 +132,10 @@ model SubAccount {
   Pipeline         Pipeline[]
   Tags             Tag[]
   Notification     Notification[]
-  Event            Event[]
-
+  EventId          String?
+  Events  Event[]
   @@index([agencyId])
+  @@index([EventId])
 }
 
 model Tag {
@@ -432,17 +435,56 @@ model AddOns {
 
   @@index([agencyId])
 }
-model Event {
-  id          String   @id @default(uuid())
-  name        String
-  type        String
-  description String?
-  startDate   DateTime
-  endDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  subAccountId String
-  SubAccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
 
+// esports logic starts here
+model Event {
+  id            String        @id @default(uuid())
+  name          String
+  type          String
+  description   String?
+  startDate     DateTime
+  endDate       DateTime?
+  ownerId       String?
+  Owner         User?         @relation(fields: [ownerId], references: [id])
+  Participants  Participant[] @relation("EventToParticipant")
+  Teams         Team[]        
+  subAccountId  String?       // Optional field for SubAccount relation
+  SubAccount    SubAccount?   @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+  agencyId      String?       // Optional field for Agency relation
+  Agency        Agency?       @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  @@index([agencyId])
   @@index([subAccountId])
+}
+
+model Team {
+  id          String       @id @default(uuid())
+  name        String
+  eventId     String
+  Event       Event        @relation(fields: [eventId], references: [id])
+  members     TeamMember[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  @@index([eventId])
+}
+
+model TeamMember {
+  id            String       @id @default(uuid())
+  teamId        String
+  participantId String
+  Team          Team        @relation(fields: [teamId], references: [id])
+  Participant   Participant @relation(fields: [participantId], references: [id])
+
+  @@unique([teamId, participantId])
+}
+
+model Participant {
+  id        String   @id @default(uuid())
+  name      String
+  avatarUrl String   @db.Text
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  events    Event[]  @relation("EventToParticipant")
+  eamMembers   TeamMember[]
 }
