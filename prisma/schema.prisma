@@ -13,15 +13,6 @@ enum Role {
   AGENCY_ADMIN
   SUBACCOUNT_USER
   SUBACCOUNT_GUEST
-  TOURNAMENT_ORGANIZER
-  EVENT_OWNER
-  TEAM_OWNER
-  PLAYER
-}
-
-enum ManagementType {
-  MANUAL
-  AUTOMATED
 }
 
 enum Icon {
@@ -70,16 +61,16 @@ model User {
   Permissions  Permissions[]
   Ticket       Ticket[]
   Notification Notification[]
-  ownedEvents  Event[]
+
   @@index([agencyId])
 }
 
 model Permissions {
-  id           String                   @id @default(uuid())
+  id           String     @id @default(uuid())
   email        String
-  User         User                     @relation(fields: [email], references: [email], onDelete: Cascade)
+  User         User       @relation(fields: [email], references: [email], onDelete: Cascade)
   subAccountId String
-  SubAccount   SubAccount               @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
   access       Boolean
 
   @@index([subAccountId])
@@ -110,7 +101,6 @@ model Agency {
   Notification     Notification[]
   Subscription     Subscription?
   AddOns           AddOns[]
-  Events           Event[]
 }
 
 model SubAccount {
@@ -140,11 +130,10 @@ model SubAccount {
   Pipeline         Pipeline[]
   Tags             Tag[]
   Notification     Notification[]
-  EventIds         String?
-  Events           Event[]
+
   @@index([agencyId])
-  @@index([EventIds])
 }
+
 model Tag {
   id           String   @id @default(uuid())
   name         String
@@ -441,80 +430,4 @@ model AddOns {
   Agency    Agency?  @relation(fields: [agencyId], references: [id])
 
   @@index([agencyId])
-}
-
-// esports logic starts here
-model Event {
-  id            String        @id @default(uuid())
-  name          String
-  type          String
-  description   String?
-  startDate     DateTime
-  endDate       DateTime?
-  ownerId       String?
-  Owner         User?         @relation(fields: [ownerId], references: [id])
-  Participants  Participant[] @relation("EventToParticipant")
-  Teams         Team[]        
-  subAccountId  String?       // Optional field for SubAccount relation
-  SubAccount    SubAccount?   @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
-  agencyId      String?       // Optional field for Agency relation
-  Agency        Agency?       @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  managementType ManagementType @default(MANUAL) // Adjusted to use enum
-  game          Game?         @relation(fields: [gameId], references: [id])
-  gameId        String?       @unique // Ensure this matches the ID type of Game
-  eventType     EventType?    @relation(fields: [eventTypeId], references: [id])
-  eventTypeId   String?       @unique // Ensure this matches the ID type of EventType
-  
-  @@index([agencyId])
-  @@index([subAccountId])
-  @@index([ownerId])
-  @@index([gameId])
-  @@index([eventTypeId])
-}
-
-model EventType {
-  id    String   @id @default(uuid())
-  name  String   @unique
-  events Event[]
-}
-
-model Game {
-  id    String   @id @default(uuid())
-  name  String   @unique
-  events Event[]
-}
-
-model Team {
-  id          String       @id @default(uuid())
-  name        String
-  eventId     String
-  Event       Event        @relation(fields: [eventId], references: [id])
-  members     TeamMember[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  @@index([eventId])
-}
-
-model TeamMember {
-  id            String       @id @default(uuid())
-  teamId        String
-  participantId String
-  Team          Team        @relation(fields: [teamId], references: [id])
-  Participant   Participant @relation(fields: [participantId], references: [id])
-
-  @@unique([teamId, participantId])
-  @@index([participantId])
-}
-
-model Participant {
-  id        String   @id @default(uuid())
-  name      String
-  avatarUrl String   @db.Text
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  events    Event[]  @relation("EventToParticipant")
-  eamMembers   TeamMember[]
-  eventId       String
-  participantId String
 }
