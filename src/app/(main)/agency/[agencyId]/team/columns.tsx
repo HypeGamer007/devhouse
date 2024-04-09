@@ -134,7 +134,7 @@ export const columns: ColumnDef<UsersWithAgencySubAccountPermissionsSidebarOptio
               'bg-orange-400': role === 'AGENCY_ADMIN',
               'bg-primary': role === 'SUBACCOUNT_USER',
               'bg-muted': role === 'SUBACCOUNT_GUEST',
-              'bg-purple-500': role === 'TOURNAMENT_ORGANIZER',
+              // 'bg-purple-500': role === 'TOURNAMENT_ORGANIZER',
             })}
           >
             {role}
